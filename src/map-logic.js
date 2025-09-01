@@ -664,7 +664,7 @@ export class Map {
         return is_legal;
     }
 
-    getHomeValue(space, variables) {
+    getHomeValue(space, other_home_spaces, variables) {
         let home_total = 0;
         let spaces_to_get_to = [];
         for(let one_space of this.spaces) {
@@ -681,9 +681,24 @@ export class Map {
                 space, one_space, variables
             );
             if(!(shortest_distance===null)) {
-                home_total+=getDistanceMultiplier(
+                let value = getDistanceMultiplier(
                     shortest_distance, variables
                 )*one_space.system.evaluate(variables);
+
+                if(!one_space.system.isMecatolRexSystem()) {
+                  for(let other_space of other_home_spaces) {
+                      let other_shortest_distance = this._getShortestModdedDistance(
+                          other_space, one_space, variables
+                      );
+
+                      if(!(other_shortest_distance===null) && other_shortest_distance <= shortest_distance){
+                        value = value / 2;
+                          break;
+                      }
+                  }
+                }
+
+                home_total+=value;
             }
         }
         return home_total;

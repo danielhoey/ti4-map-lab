@@ -544,12 +544,25 @@ export class MapEditor extends BaseEditor {
 
     getHomeValues(map = this.state.map, evars = this.state.eval_variables) {
         let home_values = {};
+        let home_indices = []
         for(let [index, one_space] of map.spaces.entries()) {
             if(one_space.type === MAP_SPACE_TYPES.HOME) {
-                home_values[index.toString()] = map.getHomeValue(
-                    one_space, evars,
-                );
+                home_indices.push(index)
             }
+        }
+
+        for(let index of home_indices) {
+            let home_space = map.spaces[index];
+            let other_spaces = []
+            for(let [j, one_space] of map.spaces.entries()) {
+                if(j !== index && home_indices.includes(j)){
+                    other_spaces.push(one_space);
+                }
+            }
+
+            home_values[index.toString()] = map.getHomeValue(
+                home_space, other_spaces, evars,
+            );
         }
         return home_values;
     }
